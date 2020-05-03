@@ -99,11 +99,11 @@ outlierKD2 <- function(df, var, rm=FALSE) {
 
 The purpose of this study it to identify: Does the key, valence, tempo, or other musical attributes change between popular American songs, and not popular songs for contrast, from the 1960's versus songs from the early 2000's?  Musical attributes under consideration are gathered from the Spotify Audio Analysis tool that records basic musical metrics, such as tempo, key, and mode, as well as more advanced, proprietary metrics, such as energy, valence, and danceability.  Popular songs from each decade are identified as those that have appeared on the Billboard Hot 100, published by Billboard magazine.  This study utilizes three predictive models, K-Nearest Neighbor, Decision Tree, and Logistic Regression, to predict the binary "popularity" feature, popular or not popular.  If each model has greater than 50% accuracy (signifying it is superior to random guessing), then it can be determined that musical attributes *do* have an effect on song popularity, and the features that appear in each model are those that have the most significant impact.
 
-From the three models explored above using popular and non-popular songs from the 1960's and 2000's decades and evaluating the musical attributes from therein, the answer to the SMART quesiton posed is **'Yes'**.  All three models had an accuracy significantly greater than 50%, fluctuating from 64% from the Logistic Regression modeling to 75% from the K-Nearest Neighbor models, identifying that, *'Yes'*, musical attributes can be used to identify popular songs from non-popular songs, at least to any extent or at a given, non-50-50 probability (if they could not, the accuracy for each model would approximately be 50%), and, *'Yes'*, these attributes can also change with time although there are some consistent attributes of popular songs through time.
+From the three models explored above using popular and non-popular songs from the 1960's and 2000's decades and evaluating the musical attributes from therein, the answer to the SMART quesiton posed is **'Yes'**.  All three models had an accuracy significantly greater than 50%, fluctuating from 64% from the Logistic Regression modeling to 75% from the K-Nearest Neighbor models, identifying that, *'Yes'*, musical attributes can be used to identify popular songs from non-popular songs, at least to some extent or at a given, non-50-50 probability (if they could not, the accuracy for each model would approximately be 50%), and, *'Yes'*, these attributes can also change with time although there are some consistent attributes of popular songs through time.
 
 In both of the evaluated decades, **danceability**, **energy**, and **key** were consistently significant features in determining song popularity, while **liveness**, **tempo**. and **valence** were only significant in a single decade.  *Key* was the only musical attribute that was determined to not have an effect on song popularity; this is consistent with the exploratory data analysis of the variable showing no distinct difference in the mean value of key or distribution of the feature between popular and non-popular songs.
 
-The conclusion of this study, for the benefit of any aspiring song writer who wishes to produce popular, well-respected music, is to create songs that have a high energy, are easy to dance to, and are played in the major key, so as to evoke an uplifting mood in listeners as these attributes   Additional analysis, potentially reviewing lyrics, themes, or other musical attributes, may lead to additional insights into the structure and composition of popular songs to the benefit of musical scholars, artists, or profiteers.
+The conclusion of this study, for the benefit of any aspiring song writer who wishes to produce popular, well-respected music, is to create songs that have a high energy, are easy to dance to, and are played in the major key, so as to evoke an uplifting mood in listeners as these attributes more likely to producing a popular song.  Additional analysis, potentially reviewing lyrics, themes, or other musical attributes, may lead to additional insights into the structure and composition of popular songs to the benefit of musical scholars, artists, or profiteers.
 
 # Purpose:
 
@@ -1653,7 +1653,7 @@ data2000Logit_5Hoslem
 #### Receiver-Operator-Characteristic (ROC) curve and Area-Under-Curve (AUC)
 ROC and AUC measures the true positive rate (or sensitivity) against the false positive rate (or specificity). The area-under-curve is always between 0.5 and 1. Values higher than 0.8 is considered good model fit.  
 ```{r roc_auc}
-loadPkg(pROC) 
+loadPkg('pROC') 
 prob=predict(data2000Logit_5, type = c("response"))
 data2000$prob=prob
 h <- roc(target~prob, data=data2000)
@@ -1678,10 +1678,10 @@ mcFadden
 Or we can use other libraries. The `pscl` (Polictical Science Computational Lab) library has the function `pR2()` (pseudo-R$^2$) will do the trick.  
 
 ```{r McFadden}
-loadPkg(pscl) # use pR2( ) function to calculate McFadden statistics for model eval
+loadPkg('pscl') # use pR2( ) function to calculate McFadden statistics for model eval
 data2000Logitpr2 = pR2(data2000Logit_5)
 data2000Logitpr2
-unloadPkg(pscl) 
+unloadPkg('pscl') 
 ```
 
 
@@ -1694,15 +1694,15 @@ A major weakness of the overall model is likely from the small dataset sample si
 This is just one of the many libraries you can find the confusion matrix. It is easy to use, but not very powerful, lacking ability to choose cutoff value, and it does not give you all the metrics like accuracy, precision, recall, sensitivity, f1 score etc. Nonetheless, it's handy.
 
 ```{r confusionMatrix}
-loadPkg(regclass)
+loadPkg('regclass')
 confusion_matrix(admitLogit)
-unloadPkg(regclass)
+unloadPkg('regclass')
 ```
 
 
 # Summary of Results
 
-The purpose of this study was to answer whether musical attributes change between popular, American songs and non-popular songs and with time.  From the three models explored above using popular and non-popular songs from the 1960's and 2000's decades and evaluating the musical attributes from therein, the answer to the SMART quesiton posed is **'Yes'**.  All three models had an accuracy significantly greater than 50%, fluctuating from 64% from the Logistic Regression modeling to 75% from the K-Nearest Neighbor models, identifying that, yes, musical attributes can be used to identify popular songs from non-popular songs, at least to any extent or at a given, non-50-50 probability (if they could not, the accuracy for each model would approximately be 50%).  Following that, the most significant musical attributed from the models (detailing the musical attributes that had the greatest effect in predicting popularity of songs) are summarized below:
+The purpose of this study was to answer whether musical attributes change between popular, American songs and non-popular songs and with time.  From the three models explored above using popular and non-popular songs from the 1960's and 2000's decades and evaluating the musical attributes from therein, the answer to the SMART quesiton posed is **'Yes'**.  All three models had an accuracy significantly greater than 50%, fluctuating from 64% from the Logistic Regression modeling to 75% from the K-Nearest Neighbor models, identifying that, yes, musical attributes can be used to identify popular songs from non-popular songs, at least to some extent or at a given, non-50-50 probability (if they could not, the accuracy for each model would approximately be 50%).  Following that, the most significant musical attributed from the models (detailing the musical attributes that had the greatest effect in predicting popularity of songs) are summarized below:
 
 *From the 1960's*, increasing the **danceability**, **energy**, **tempo**, and **valence** of a song and playing the song in a **major** key increased the likelihood that the song would be popular.
 
@@ -1712,7 +1712,7 @@ In both of the evaluated decades, **danceability**, **energy**, and **key** were
 
 As the observed models identified different, significant musical attributes between each decade, it can be seen that, in addition to these musical attributes having an effect on the popularity of song, these attributes can also change with time although there are some consistent attributes of popular songs through time.
 
-The conclusion of this study, for the benefit of any aspiring song writer who wishes to produce popular, well-respected music, is to create songs that have a high energy, are easy to dance to, and are played in the major key, so as to evoke an uplifting mood in listeners as these attributes   Additional analysis, potentially reviewing lyrics, themes, or other musical attributes, may lead to additional insights into the structure and composition of popular songs to the benefit of musical scholars, artists, or profiteers.
+The conclusion of this study, for the benefit of any aspiring song writer who wishes to produce popular, well-respected music, is to create songs that have a high energy, are easy to dance to, and are played in the major key, so as to evoke an uplifting mood in listeners as these attributes more likely to producing a popular song.  Additional analysis, potentially reviewing lyrics, themes, or other musical attributes, may lead to additional insights into the structure and composition of popular songs to the benefit of musical scholars, artists, or profiteers.
 
 
 ---
