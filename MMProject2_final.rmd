@@ -99,6 +99,12 @@ outlierKD2 <- function(df, var, rm=FALSE) {
 
 The purpose of this study it to identify: Does the key, valence, tempo, or other musical attributes change between popular American songs, and not popular songs for contrast, from the 1960's versus songs from the early 2000's?  Musical attributes under consideration are gathered from the Spotify Audio Analysis tool that records basic musical metrics, such as tempo, key, and mode, as well as more advanced, proprietary metrics, such as energy, valence, and danceability.  Popular songs from each decade are identified as those that have appeared on the Billboard Hot 100, published by Billboard magazine.  This study utilizes three predictive models, K-Nearest Neighbor, Decision Tree, and Logistic Regression, to predict the binary "popularity" feature, popular or not popular.  If each model has greater than 50% accuracy (signifying it is superior to random guessing), then it can be determined that musical attributes *do* have an effect on song popularity, and the features that appear in each model are those that have the most significant impact.
 
+From the three models explored above using popular and non-popular songs from the 1960's and 2000's decades and evaluating the musical attributes from therein, the answer to the SMART quesiton posed is **'Yes'**.  All three models had an accuracy significantly greater than 50%, fluctuating from 64% from the Logistic Regression modeling to 75% from the K-Nearest Neighbor models, identifying that, *'Yes'*, musical attributes can be used to identify popular songs from non-popular songs, at least to any extent or at a given, non-50-50 probability (if they could not, the accuracy for each model would approximately be 50%), and, *'Yes'*, these attributes can also change with time although there are some consistent attributes of popular songs through time.
+
+In both of the evaluated decades, **danceability**, **energy**, and **key** were consistently significant features in determining song popularity, while **liveness**, **tempo**. and **valence** were only significant in a single decade.  *Key* was the only musical attribute that was determined to not have an effect on song popularity; this is consistent with the exploratory data analysis of the variable showing no distinct difference in the mean value of key or distribution of the feature between popular and non-popular songs.
+
+The conclusion of this study, for the benefit of any aspiring song writer who wishes to produce popular, well-respected music, is to create songs that have a high energy, are easy to dance to, and are played in the major key, so as to evoke an uplifting mood in listeners as these attributes   Additional analysis, potentially reviewing lyrics, themes, or other musical attributes, may lead to additional insights into the structure and composition of popular songs to the benefit of musical scholars, artists, or profiteers.
+
 # Purpose:
 
 The purpose of this study is to analyse the affect of music attributes, such as tempo, key, mode, etc, on the popularity of songs with respect to time.  Specifically, the SMART question for this study is: Does the key, valence, tempo, or other musical attributes change between popular songs, and not popular songs for contrast, in the 1960's versus songs from the early 2000's?
@@ -1228,7 +1234,6 @@ ggplot(knn_different_k,
 
 The correctness of all the results has now been proved
 
-
 ```{r uzscale_fcn, include=F}
 uzscale <- function(df, append=0, excl=NULL) { 
   #' Standardize dataframe to z scores, safe for non-numeric variables. 
@@ -1265,9 +1270,10 @@ uzscale <- function(df, append=0, excl=NULL) {
 }
 ```
 ```{r Krystal_packageload, include=F}
-loadPkg(xtable)
-loadPkg(kableExtra)
-loadPkg(stringi)
+loadPkg('xtable')
+loadPkg('kableExtra')
+loadPkg('stringi')
+loadPkg('rpart')
 ```
 
 # Decision Tree Analysis - Krystal
@@ -1275,7 +1281,7 @@ loadPkg(stringi)
 The main goal of this section is to predict whether the target class of popular and non-popular songs will have different variables that affect them in the 1960s and 2000s.  Will the songs have the same variables that matter most in both decades or will they differ? 
 
 ## Grow the Tree
-In this section, the study will be using the Categorical Decision Tree to show what makes a song popular in the 1960s verses the 2000s.  The variables of tempo, key, valence, danceability, energy, liveness, and mode are the independent variables and target will be used as the dependent variable.  First there had to be changings made to the variable target so it could be a factor variable.  Once this has been done, one can proceed to grow the decision tree by starting at the root and building up.  Our root will be target which has already been stated as the dependent variable:
+In this section, the study will be using the Categorical Decision Tree to show what makes a song popular in the 1960's verses the 2000's.  The variables of tempo, key, valence, danceability, energy, liveness, and mode are the independent variables and target will be used as the dependent variable.  First, there had to be change made to the variable, 'target', so it could be a factor variable.  Once this has been done, one can proceed to grow the decision tree by starting at the root and building up.  Our root will be target which has already been stated as the dependent variable:
 
 ```{r cleandata, include=F}
 data1960$target <- as.factor(data1960$target)
@@ -1315,23 +1321,23 @@ post(data2000_DT, file = "data2000.ps", title = "Classification Tree for 2000s S
 
 Here are the results. 
 
-For the 1960s Song List:
-From the decision tree, the first branching point has 4321 popular and 4321 unpopular songs from the data. The first split yields 2015 outcomes with energy levels < 0.27 and 6627 outcomes with energy levels >= 0.27 for the popularity results for the song list.  The energy level was showns as being the most important variable to determine whether the song was popular or not.  The energy level being under 0.27 represents that the song was unpopular and the energy level greater than 0.27 deems the song as popular.  The variable that follows after the energy level was the variance level.  There were only two variables that determined the popularity of the songs making the Billboard Top 100 list. For the song to be considered popular, the energy of the song has to be equal to or greater than 0.27.  A further split on the left node might not have been beneficial to separate the popular and unpopular songs list. The algorithm actually stops there, and predicts unpopular for all 2015 observations, giving 476/2015 incorrect predictions. 
+For the 1960's Song List:
+From the decision tree, the first branching point has 4321 popular and 4321 unpopular songs from the data. The first split yields 2015 outcomes with energy levels < 0.27 and 6627 outcomes with energy levels >= 0.27 from the popularity results for the song list.  The energy level was shown as being the most important variable to determine whether the song was popular or not.  The energy level being under 0.27 represents that the song was more likely to be unpopular and the energy level greater than 0.27 deems the song was more likely to be popular.  The variable that follows after the energy level was the variance level.  There were only two variables that determined the popularity of the songs making the Billboard Top 100 list. For the song to more liekly be considered popular, the energy of the song has to be equal to or greater than 0.27.  A further split on the left node might not have been beneficial to separate the popular and unpopular songs list. The algorithm actually stops there, and more likely predicts an unpopular rating for all 2015 observations, giving 476/2015 incorrect predictions. 
 
-Nonethelss, the lower branch continue to split, with  (67%) correct prediction on the last leave (node at end of branch) and 481/772 correct **non popular** prediction on the third leaf, while the last leaf predicted 3604/5905 **popular** correctly. Not too bad.
-
-Overall, when the model predicts **unpopular**, accuracy is (1539+481)/(1539+476+481+291) = `r round( (1539+481)/(1539+476+481+291)*100,1 )`%. And when the model predicts **popular**, accuracy is (29+12+12)/(29+0+12+0+12+2) = `r round( (29+12+12)/(29+0+12+0+12+2)*100,1 )`%.
-
-Now the 2000s Song List can be summarized:
-The decision tree starts the first branching point with 2936 popular and 2936 unpopular songs from the data presented from Spotify. The first split yields 1319 outcomes with danceability levels < 0.396 and 4553 outcomes with danceability levels >= 0.396 for the popularity results for the song list.  The danceability levels has been identified as the most important variable to determine whether the song was popular or not in the 2000s.  Danceability levels being under 0.396 represents that the song was unpopular while the danceability levels being greater than 0.396 are deemed as the song being popular.  The variables that follows after the danceability level are the energy and then valence levels.  Unlike the 1960s, there are three variables that determined the popularity of the songs making the Billboard Top 100 list. For the song to be considered popular, the danceability of the song has to be equal to or greater than 0.396.  A further split on the left node might not have been beneficial just like in the 1960s decision tree to separate the popular and unpopular songs list. The algorithm actually stops there, and predicts unpopular for all 1319 observations, giving 157/2015 incorrect predictions. 
-
-Nonethelss, the lower branch continue to split, with  (60%) correct prediction on the last leaf (node at end of branch) and 129/214 correct **non popular** prediction on the third leaf, while the last leaf predicted 609/976 **popular** correctly.
+Nonetheless, the lower branch continues to split, with  (67%) correct prediction on the last leaf (node at end of a branch) and 481/772 correct **non popular** prediction on the third leaf, while the last leaf predicted 3604/5905 **popular** correctly. Not too bad.
 
 Overall, when the model predicts **unpopular**, accuracy is (1539+481)/(1539+476+481+291) = `r round( (1539+481)/(1539+476+481+291)*100,1 )`%. And when the model predicts **popular**, accuracy is (29+12+12)/(29+0+12+0+12+2) = `r round( (29+12+12)/(29+0+12+0+12+2)*100,1 )`%.
 
-From the decision tables above we see that what made a song popular in the 1960s did not necessarily make a song popular in the 2000s.  They had one differing variable that made the difference.  In the 2000s, the most important variable for the song to make the Billboards Top 100 list was for the song to have danceability.  Songs like Hot in Herre by Nelly is a song that has the danceability that is talked about.  In the 1960s, a song needed to have energy as the most impoartant variable.  We can check our decision tables but creating confusion matrixes.
+Now the 2000's Song List can be summarized:
+The decision tree starts the first branching point with 2936 popular and 2936 unpopular songs from the data presented from Spotify. The first split yields 1319 outcomes with danceability levels < 0.396 and 4553 outcomes with danceability levels >= 0.396 for the popularity results for the song list.  The danceability level has been identified as the most important variable to determine whether a song was popular or not in the 2000's.  The danceability level being under 0.396 represents that the song was more likely unpopular while the danceability level being greater than 0.396 are deemed as the song being more-likely popular.  The variables that follow after the danceability level are the energy and then valence levels.  Unlike the 1960's, there are three variables that determined the popularity of the songs making the Billboard Top 100 list. For the song to be more likely considered popular, the danceability of the song has to be equal to or greater than 0.396.  A further split on the left node might not have been beneficial just like in the 1960's decision tree to separate the popular and non-popular songs list. The algorithm actually stops there, and predicts non-popular for all 1319 observations, giving 157/2015 incorrect predictions. 
 
-These perentages for both the 1960s and 2000s songs can represent by the calculations below that are being examined in confusion matrixes.
+Nonetheless, the lower branch continues to split, with  (60%) correct prediction on the last leaf (node at end of branch) and 129/214 correct **non-popular** prediction on the third leaf, while the last leaf predicted 609/976 **popular** correctly.
+
+Overall, when the model predicts **unpopular**, accuracy is (1539+481)/(1539+476+481+291) = `r round( (1539+481)/(1539+476+481+291)*100,1 )`%. And when the model predicts **popular**, accuracy is (29+12+12)/(29+0+12+0+12+2) = `r round( (29+12+12)/(29+0+12+0+12+2)*100,1 )`%.
+
+From the decision tables above we see that what made a song popular in the 1960's did not necessarily make a song popular in the 2000's.  They had one differing variable that made the difference.  In the 2000s, the most important variable for the song to make the Billboard's Top 100 list was for the song to have danceability.  A song like 'Hot in Herre' by Nelly has the high danceability that is discussed above.  In the 1960's, a song needed to have energy as the most important variable.  We can check our decision tables by creating confusion matrixes.
+
+These perentages for both the 1960's and 2000's songs can be represented by the calculations below that are being examined in confusion matrixes.
 
 
 ```{r KPConTab1960, results=T}
@@ -1362,10 +1368,10 @@ unloadPkg(caret)
 ```{r KPTable2000, results="asis"}
 xkabledply(cm_2000$table, "confusion matrix")
 ```
-Now that the calculations are calculated in the confusion matrix, another method can be used and it uses the maxdepth with the results being put into a summary below.
+Now that the calculations are calculated in the confusion matrix, another method can be used, and it uses the 'maxdepth' with the results being put into a summary below.
 
 
-1960s Song Max Depth Summary:
+1960's Song Max Depth Summary:
 ```{r KPmaxdepth1960}
 loadPkg(rpart)
 loadPkg(caret)
@@ -1422,10 +1428,10 @@ xkabledply(confusionMatrixResultDf_2, "2000s Song List Classification Trees summ
 ```
 
 
-The following are two additional ways that we can plot out the categorical decision tree.  The additional methods are the 'rpart.plot' and 'fancy' plots to help read the tree easier.  Both the 1960s and 2000s songs have been placed into the models as follows:
+The following are two additional ways that we can plot out the categorical decision tree.  The additional methods are the 'rpart.plot' and 'fancy' plots to help read the tree easier.  Both the 1960's and 2000's songs have been placed into the models as follows:
 
 
-1960s Song Fancy and Rpart Plots
+1960's Song Fancy and Rpart Plots
 ```{r KPfancyplot_1960, results=T}
 loadPkg("rpart.plot")
 rpart.plot(data1960_DT)
@@ -1433,7 +1439,7 @@ loadPkg("rattle") # For fancyRpartPlot (Trees) Answer "no" on installing from bi
 fancyRpartPlot(data1960_DT)
 ```
 
-2000s Song Fancy and Rpart Plots
+2000's Song Fancy and Rpart Plots
 ```{r KPfancyplot_2000, results=T}
 loadPkg("rpart.plot")
 rpart.plot(data2000_DT)
@@ -1444,7 +1450,7 @@ fancyRpartPlot(data2000_DT)
 
 ## Prune the tree
 
-We can now prune the decision trees to get the most important results to know what variables are most important to be put onto the Billboards Top 100 list.  The following are the pruning of the trees:
+We can now prune the decision trees to get the most important results to know what variables are most important to be put onto the Billboard's Top 100 list.  The following are from the pruning of the trees:
 
 ```{r KPprune1960, results=T}
 #prune the tree 
@@ -1469,7 +1475,7 @@ plot(PT_data2000_DT, uniform=TRUE, main="Pruned Classification Tree for 2000s So
 text(PT_data2000_DT, use.n=TRUE, all=TRUE, cex=.8)
 ```
 
-From the pruned trees, the results show different variables for each year on what classified them to get on the Billboards Top 100 List.  For the 1960s songs, the song needed to have an energy level greater than 0.27.  This is shown as the most independent variable that determines the popularity of a song.  In order for a song in the 2000s to make the list, the danceability matter more than energy.  The dancebility had to be greater than a level of 0.40.  In the two eras, there were differences in what was deemed as most important.  In the 1960s, a person needed to have the right energy being eluded from the music while in the 2000s the song had to be a danceable song.
+From the pruned trees, the results show different variables for each year on what classified them to get on the Billboard's Top 100 List.  For the 1960's songs, the song needed to have an energy level greater than 0.27.  This is shown as the most significant variable that determines the popularity of a song.  In order for a song in the 2000's to make the list, the danceability matters more than energy.  The dancebility had to be greater than a level of 0.40.  In the two eras, there were differences in what was deemed as most important.  In the 1960's, a person needed to have the right energy being exuded from the music, while in the 2000's the song had to be a danceable song.
 
 # Logit Regression - Siwei
 
@@ -1721,6 +1727,17 @@ unloadPkg(regclass)
 
 # Summary of Results
 
+The purpose of this study was to answer whether musical attributes change between popular, American songs and non-popular songs and with time.  From the three models explored above using popular and non-popular songs from the 1960's and 2000's decades and evaluating the musical attributes from therein, the answer to the SMART quesiton posed is **'Yes'**.  All three models had an accuracy significantly greater than 50%, fluctuating from 64% from the Logistic Regression modeling to 75% from the K-Nearest Neighbor models, identifying that, yes, musical attributes can be used to identify popular songs from non-popular songs, at least to any extent or at a given, non-50-50 probability (if they could not, the accuracy for each model would approximately be 50%).  Following that, the most significant musical attributed from the models (detailing the musical attributes that had the greatest effect in predicting popularity of songs) are summarized below:
+
+*From the 1960's*, increasing the **danceability**, **energy**, **tempo**, and **valence** of a song and playing the song in a **major** key increased the likelihood that the song would be popular.
+
+*From the 2000's*, increasing the **danceability** and **energy** of a song, not playing the song live, and playing the song in a **major** key increased the likelihood that the song would be popular.
+
+In both of the evaluated decades, **danceability**, **energy**, and **key** were consistently significant features in determining song popularity, while **liveness**, **tempo**. and **valence** were only significant in a single decade.  *Key* was the only musical attribute that was determined to not have an effect on song popularity; this is consistent with the exploratory data analysis of the variable showing no distinct difference in the mean value of key or distribution of the feature between popular and non-popular songs.
+
+As the observed models identified different, significant musical attributes between each decade, it can be seen that, in addition to these musical attributes having an effect on the popularity of song, these attributes can also change with time although there are some consistent attributes of popular songs through time.
+
+The conclusion of this study, for the benefit of any aspiring song writer who wishes to produce popular, well-respected music, is to create songs that have a high energy, are easy to dance to, and are played in the major key, so as to evoke an uplifting mood in listeners as these attributes   Additional analysis, potentially reviewing lyrics, themes, or other musical attributes, may lead to additional insights into the structure and composition of popular songs to the benefit of musical scholars, artists, or profiteers.
 
 
 ---
