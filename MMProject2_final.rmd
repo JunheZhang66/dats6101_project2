@@ -41,6 +41,13 @@ options(scientific=T, digits = 3)
 loadPkg = function(x) { if (!require(x,character.only=T, quietly =T)) { install.packages(x,dep=T,repos="http://cran.us.r-project.org"); if(!require(x,character.only=T)) stop("Package not found") } }
 # unload/detact package when done using it
 # detach_package = function(pkg, character.only = FALSE) { if(!character.only) { pkg <- deparse(substitute(pkg)) } search_item <- paste("package", pkg, sep = ":") while(search_item %in% search()) { detach(search_item, unload = TRUE, character.only = TRUE) } }
+# unload/detact package when done using it
+unloadPkg = function(pkg, character.only = FALSE) { 
+  if(!character.only) { pkg <- as.character(substitute(pkg)) } 
+  search_item <- paste("package", pkg,sep = ":") 
+  while(search_item %in% search()) { detach(search_item, unload = TRUE, character.only = TRUE) } 
+}
+
 ```
 
 ```{r outlierKD2, include = F}
@@ -130,17 +137,25 @@ The data analyized herein was pulled from the Kaggle database website, from a da
 # Data Background:
 
 As stated previously, the Spotify Audio Analysis records multiple features for each track in its extensive collection of music titles.  Some of these features, such as tempo, key, and mode, have strict definitions within the music community and are, otherwise, clear, quantifiable variables (e.g., tempo is measured in beats per minute).  Other features do not have strict definitions within the music community and/or do not have a clear, quantifiable standard that can be measured within each track.  The following features are ranked in Spotify's analyses on a scale of 0 to 1 and will be considered for analysis in this study: [^1]
+
 - **Valence** describes the musical positiveness conveyed by a track. Tracks with high valence sound more positive (e.g. happy, cheerful, euphoric), while tracks with low valence sound more negative (e.g. sad, depressed, angry).  For perspective: from the 2000's data set, one popular song with a high valence (0.965) is OutKast's ["Hey Ya"](https://open.spotify.com/track/2PpruBYCo4H7WOBJ7Q2EwM?si=3b7dll0ITZ-H5FsIu-qGig), while a song with low valence (0.0356) is deadmau5's ["Strobe"](https://open.spotify.com/track/31NiyZrUd1r4icY7xkvnWv?si=przVh9EjRgG-oyH5rInY9A).
+
 - **Danceability** describes how suitable a track is for dancing based on a combination of musical elements including tempo, rhythm stability, beat strength, and overall regularity. For perspective: from the 2000's data set, one popular song with a high danceability (0.956) is Nelly's ["Hot in Herre"](https://open.spotify.com/track/04KTF78FFg8sOHC1BADqbY?si=i8f_wIreTsu34rIpSX4PDA), while a song with low danceability (0.0356) is Venom's ["Black Metal"](https://open.spotify.com/track/3yNoEJifUJdly8ucYoWRwl?si=15rDImzOTkSfJlpggbrPLw). 
+
 - **Energy** represents a perceptual measure of intensity and activity. Typically, energetic tracks feel fast, loud, and noisy. For example, death metal has high energy, while a Bach prelude scores low on the scale. Perceptual features contributing to this attribute include dynamic range, perceived loudness, timbre, onset rate, and general entropy. For perspective: from the 2000's data set, one popular song with a high energy (0.991) is Fatboy Slim's ["The Rockafeller Skank"](https://open.spotify.com/track/7mCQK9YB25WZw1saUjfL4e?si=46Rwt-TMQgusLo_Wjm3o0g), while a song with low energy (0.0013) is Alvin Curran's ["Inner Cities II"](https://open.spotify.com/track/4De0j0rVNmezk0EXPzOtwZ?si=ShNPfVWrQfKzZPiBlxKS-g).
+
 - **Liveness** detects the presence of an audience in the recording. Higher liveness values represent an increased probability that the track was performed live. For perspective: from the 2000's data set, one popular song with a high liveness (0.959) is Metallica's ["No Leaf CLover - Live"](https://open.spotify.com/track/0n4AllHzf3ma4ki20Y9h00?si=d3-JKQO9SOeTVxMzNhOYYQ), while any studio-produced song would have a low liveness.
 
 The full analysis of these features, namely the methods or calculations by which their values are determined, are not released by Spotify, potentially due to intellectual property reasons.
 
 The Billboard Hot 100 has several component charts that contribute to the overall calculation of the Hot 100 each week. The most significant components are: [^2]
+
 - **Hot 100 Airplay**: (per Billboard) approximately 1,000 stations, "composed of adult contemporary, R&B, hip hop, country, rock, gospel, Latin and Christian formats, digitally monitored twenty-four hours a day, seven days a week. Charts are ranked by number of gross audience impressions, computed by cross-referencing exact times of radio airplay with Arbitron listener data." 
+
 - **Hot Singles Sales**: (per Billboard) "the top selling singles compiled from a national sample of retail store, mass merchant and internet sales reports collected, compiled, and provided by Nielsen SoundScan." The chart is released weekly and measures sales of physical commercial singles. With the decline in sales of physical singles in the US, many songs that become number one on this chart often do not even chart on the Hot 100.
+
 - **Digital Songs**: Digital sales are tracked by Nielsen SoundScan and are included as part of a title's sales points.
+
 - **Streaming Songs**: a collaboration between Billboard, Nielsen SoundScan and National Association of Recording Merchandisers which measures the top streamed radio songs, on-demand songs and videos on leading online music services.
 
 From these varied and independent sources, the Billboard Hot 100 represents a nuetral and storied arbiter of the objective popularity of songs from 1958 thorough the present, including all songs to be evaluated from the 1960s and early 2000s.
@@ -326,9 +341,13 @@ format(shapiro.test(subset(data2000,target ==0)$tempo)$p.value, digits = 4)
 ```
 
 **Shapiro-Wilke Normality Test:**
+
 1960's Popular Probabality Value:       `r format(shapiro.test(subset(data1960,target ==1)$tempo)$p.value, digits = 4)`
+
 1960's Non-Popular Probabality Value:   `r format(shapiro.test(subset(data1960,target ==0)$tempo)$p.value, digits = 4)`
+
 2000's Popular Probabality Value:       `r format(shapiro.test(subset(data2000,target ==1)$tempo)$p.value, digits = 4)`
+
 2000's Non-Popular Probabality Value:   `r format(shapiro.test(subset(data2000,target ==0)$tempo)$p.value, digits = 4)`
 
 For all of the categories above, the Shapiro-Wilke probability was significantly less than 0.05 and, thus, the data is not normally distributed.
@@ -423,9 +442,13 @@ format(shapiro.test(subset(data2000,target ==0)$key)$p.value, digits = 4)
 ```
 
 **Shapiro-Wilke Normality Test:**
+
 1960's Popular Probabality Value:       `r format(shapiro.test(subset(data1960,target ==1)$key)$p.value, digits = 4)`
+
 1960's Non-Popular Probabality Value:   `r format(shapiro.test(subset(data1960,target ==0)$key)$p.value, digits = 4)`
+
 2000's Popular Probabality Value:       `r format(shapiro.test(subset(data2000,target ==1)$key)$p.value, digits = 4)`
+
 2000's Non-Popular Probabality Value:   `r format(shapiro.test(subset(data2000,target ==0)$key)$p.value, digits = 4)`
 
 For all of the categories above, the Shapiro-Wilke probability was significantly less than 0.05 and, thus, none of the key distributions should be considered normally-distributed.
@@ -594,9 +617,13 @@ format(shapiro.test(subset(data2000,target ==0)$valence)$p.value, digits = 4)
 ```
 
 **Shapiro-Wilke Normality Test:**
+
 1960's Popular Probabality Value:       `r format(shapiro.test(subset(data1960,target ==1)$valence)$p.value, digits = 4)`
+
 1960's Non-Popular Probabality Value:   `r format(shapiro.test(subset(data1960,target ==0)$valence)$p.value, digits = 4)`
+
 2000's Popular Probabality Value:       `r format(shapiro.test(subset(data2000,target ==1)$valence)$p.value, digits = 4)`
+
 2000's Non-Popular Probabality Value:   `r format(shapiro.test(subset(data2000,target ==0)$valence)$p.value, digits = 4)`
 
 For all of the categories above, the Shapiro-Wilke probability was significantly less than 0.05 and, thus, none of the valence distributions should be considered normally-distributed.
@@ -691,9 +718,13 @@ format(shapiro.test(subset(data2000,target ==0)$danceability)$p.value, digits = 
 ```
 
 **Shapiro-Wilke Normality Test:**
+
 1960's Popular Probabality Value:       `r format(shapiro.test(subset(data1960,target ==1)$danceability)$p.value, digits = 4)`
+
 1960's Non-Popular Probabality Value:   `r format(shapiro.test(subset(data1960,target ==0)$danceability)$p.value, digits = 4)`
+
 2000's Popular Probabality Value:       `r format(shapiro.test(subset(data2000,target ==1)$danceability)$p.value, digits = 4)`
+
 2000's Non-Popular Probabality Value:   `r format(shapiro.test(subset(data2000,target ==0)$danceability)$p.value, digits = 4)`
 
 For all of the categories above, the Shapiro-Wilke probability was significantly less than 0.05 and, thus in contrast to potential appearances, none of the danceability distributions should be considered normally-distributed.
@@ -788,9 +819,13 @@ format(shapiro.test(subset(data2000,target ==0)$energy)$p.value, digits = 4)
 ```
 
 **Shapiro-Wilke Normality Test:**
+
 1960's Popular Probabality Value:       `r format(shapiro.test(subset(data1960,target ==1)$energy)$p.value, digits = 4)`
+
 1960's Non-Popular Probabality Value:   `r format(shapiro.test(subset(data1960,target ==0)$energy)$p.value, digits = 4)`
+
 2000's Popular Probabality Value:       `r format(shapiro.test(subset(data2000,target ==1)$energy)$p.value, digits = 4)`
+
 2000's Non-Popular Probabality Value:   `r format(shapiro.test(subset(data2000,target ==0)$energy)$p.value, digits = 4)`
 
 For all of the categories above, the Shapiro-Wilke probability was significantly less than 0.05 and, thus, none of the energy distributions should be considered normally-distributed.
@@ -885,9 +920,13 @@ format(shapiro.test(subset(data2000,target ==0)$liveness)$p.value, digits = 4)
 ```
 
 **Shapiro-Wilke Normality Test:**
+
 1960's Popular Probabality Value:       `r format(shapiro.test(subset(data1960,target ==1)$liveness)$p.value, digits = 4)`
+
 1960's Non-Popular Probabality Value:   `r format(shapiro.test(subset(data1960,target ==0)$liveness)$p.value, digits = 4)`
+
 2000's Popular Probabality Value:       `r format(shapiro.test(subset(data2000,target ==1)$liveness)$p.value, digits = 4)`
+
 2000's Non-Popular Probabality Value:   `r format(shapiro.test(subset(data2000,target ==0)$liveness)$p.value, digits = 4)`
 
 For all of the categories above, the Shapiro-Wilke probability was significantly less than 0.05 and, thus, none of the liveness distributions should be considered normally-distributed.
@@ -1341,13 +1380,12 @@ These perentages for both the 1960's and 2000's songs can be represented by the 
 
 
 ```{r KPConTab1960, results=T}
-loadPkg(caret) 
+loadPkg('caret') 
 cm_1960 = confusionMatrix( predict(data1960_DT, type = "class"), reference = data1960[, "target"] )
 print('Overall: ')
 cm_1960$overall
 print('Class: ')
 cm_1960$byClass
-unloadPkg(caret)
 ```
 
 ```{r KPTable1960, results="asis"}
@@ -1355,13 +1393,12 @@ xkabledply(cm_1960$table, "confusion matrix")
 ```
 
 ```{r KPConTable2000, results=T}
-loadPkg(caret) 
 cm_2000 = confusionMatrix( predict(data2000_DT, type = "class"), reference = data2000[, "target"] )
 print('Overall: ')
 cm_2000$overall
 print('Class: ')
 cm_2000$byClass
-unloadPkg(caret)
+unloadPkg('caret')
 ```
 
 
@@ -1373,8 +1410,8 @@ Now that the calculations are calculated in the confusion matrix, another method
 
 1960's Song Max Depth Summary:
 ```{r KPmaxdepth1960}
-loadPkg(rpart)
-loadPkg(caret)
+loadPkg('rpart')
+loadPkg('caret')
 # create an empty dataframe to store the results from confusion matrices
 confusionMatrixResultDf_1 = data.frame( Depth=numeric(0), Accuracy= numeric(0), Sensitivity=numeric(0), Specificity=numeric(0), Pos.Pred.Value=numeric(0), Neg.Pred.Value=numeric(0), Precision=numeric(0), Recall=numeric(0), F1=numeric(0), Prevalence=numeric(0), Detection.Rate=numeric(0), Detection.Prevalence=numeric(0), Balanced.Accuracy=numeric(0), row.names = NULL )
 for (deep in 2:6) {
@@ -1390,7 +1427,6 @@ for (deep in 2:6) {
   confusionMatrixResultDf_1 = rbind(confusionMatrixResultDf_1, cmt_1)
   # print("Other metrics : ")
 }
-unloadPkg(caret)
 ```
 
 The summarized result is here:
@@ -1401,8 +1437,6 @@ xkabledply(confusionMatrixResultDf_1, "1960s Song List Classification Trees summ
 
 2000s Song Max Depth Summary:
 ```{r KPmaxdepth2000}
-loadPkg(rpart)
-loadPkg(caret)
 # create an empty dataframe to store the results from confusion matrices
 confusionMatrixResultDf_2 = data.frame( Depth=numeric(0), Accuracy= numeric(0), Sensitivity=numeric(0), Specificity=numeric(0), Pos.Pred.Value=numeric(0), Neg.Pred.Value=numeric(0), Precision=numeric(0), Recall=numeric(0), F1=numeric(0), Prevalence=numeric(0), Detection.Rate=numeric(0), Detection.Prevalence=numeric(0), Balanced.Accuracy=numeric(0), row.names = NULL )
 for (deep in 2:6) {
@@ -1418,7 +1452,7 @@ for (deep in 2:6) {
   confusionMatrixResultDf_2 = rbind(confusionMatrixResultDf_2, cmt_2)
   # print("Other metrics : ")
 }
-unloadPkg(caret)
+unloadPkg('caret')
 ```
 
 The summarized result is here:
@@ -1441,9 +1475,7 @@ fancyRpartPlot(data1960_DT)
 
 2000's Song Fancy and Rpart Plots
 ```{r KPfancyplot_2000, results=T}
-loadPkg("rpart.plot")
 rpart.plot(data2000_DT)
-loadPkg("rattle") # For fancyRpartPlot (Trees) Answer "no" on installing from binary source
 fancyRpartPlot(data2000_DT)
 ```
 
@@ -1491,7 +1523,7 @@ data1960$mode <- factor(data1960$mode)
 data1960$target <- factor(data1960$target)
 ```
 
-```{r LogReg-Siwei}
+```{r LogReg-Siwei_1}
 data1960Logit_1 <- glm(target ~ tempo, data = data1960, family = "binomial")
 data1960Logit_1
 ```
@@ -1503,27 +1535,27 @@ summary(data1960Logit_1)
 
 
 
-```{r LogReg-Siwei}
+```{r LogReg-Siwei_2}
 data1960Logit_2 <- glm(target ~ tempo+valence, data = data1960, family = "binomial")
 data1960Logit_2
 summary(data1960Logit_2)
 ```
 
 
-```{r LogReg-Siwei}
+```{r LogReg-Siwei_4}
 data1960Logit_3 <- glm(target ~ tempo+valence+danceability, data = data1960, family = "binomial")
 data1960Logit_3
 summary(data1960Logit_3)
 ```
 
 
-```{r LogReg-Siwei}
+```{r LogReg-Siwei_5}
 data1960Logit_4 <- glm(target ~ tempo+valence+danceability+energy, data = data1960, family = "binomial")
 data1960Logit_4
 summary(data1960Logit_4)
 ```
 
-```The best model for year 1960 is data1960Logit_4. All the coefficients are found significant because of the small p-values. Tempo, valence, danceability and energy all have positive effects on music popularity. Energy had the biggest positive coefficient on music in 1960, while tempo had the smallest influence on popularity.```
+The best model for year 1960 is data1960Logit_4. All the coefficients are found significant because of the small p-values. Tempo, valence, danceability and energy all have positive effects on music popularity. Energy had the biggest positive coefficient on music in 1960, while tempo had the smallest influence on popularity.```
 ```{r}
 x = exp(coef(data1960Logit_4)) 
 x
@@ -1531,25 +1563,12 @@ x
 
 
 ```{r siwei-logit_fitted_value}
-data1960Logit$fitted.values[1]
-predict(data1960Logit)[1]
-1/(1+exp(-predict(data1960Logit)[1]))
+data1960Logit_4$fitted.values[1]
+predict(data1960Logit_4)[1]
+1/(1+exp(-predict(data1960Logit_4)[1]))
 ```
 
-### Model evaluation
-#### Confusion matrix 
-
-A confusion matrix is a table that is often used to describe the performance of a classifier on a set of test data for which the true values are known. It allows the visualization of the performance of an algorithm. This is just one of the many libraries you can find the confusion matrix. It is easy to use, but not very powerful, lacking ability to choose cutoff value, and it does not give you all the metrics like accuracy, precision, recall, sensitivity, f1 score etc. 
-
-
-```{r confusionMatrix}
-loadPkg(regclass)
-confusion_matrix(admitLogit)
-unloadPkg(regclass)
-```
-
-
-```{r LogReg-Siwei}
+```{r LogReg-Siwei_12}
 data1960Logit_5 <- glm(target ~ tempo+valence+danceability+energy+liveness, data = data1960, family = "binomial")
 data1960Logit_5
 summary(data1960Logit_5)
@@ -1561,9 +1580,9 @@ summary(data1960Logit_5)
 The Hosmer and Lemeshow Goodness of Fit test can be used to evaluate logistic regression fit.
 
 ```{r HosmerLemeshow-Siwei}
-loadPkg(ResourceSelection) # function hoslem.test( ) for logit model evaluation
+loadPkg('ResourceSelection') # function hoslem.test( ) for logit model evaluation
 data1960Logit_4Hoslem = hoslem.test(data1960$target, fitted(data1960Logit_1)) # Hosmer and Lemeshow test, a chi-squared test
-unloadPkg(ResourceSelection) 
+unloadPkg('ResourceSelection') 
 ```
 
 The result is shown here:  
@@ -1580,9 +1599,9 @@ Similar to comparing the actual frequency distribution to the model predicted fr
 
 ROC and AUC measures the true positive rate (or sensitivity) against the false positive rate (or specificity). The area-under-curve is always between 0.5 and 1. Values higher than 0.8 is considered good model fit.  
 ```{r roc_auc}
-loadPkg(pROC) 
-prob=predict(data1960Logit, type = c("response"))
-data1960Logit$prob=prob
+loadPkg('pROC') 
+prob=predict(data1960Logit_4, type = c("response"))
+data1960Logit_4$prob=prob
 h <- roc(target~prob, data=data1960)
 auc(h) # area-under-curve prefer 0.8 or higher.
 plot(h)
@@ -1598,23 +1617,20 @@ McFadden is another evaluation tool we can use on logit regressions. This is par
 
 ```{r McFadden_direct}
 data1960NullLogit <- glm(target ~ 1, data = data1960, family = "binomial")
-mcFadden = 1 - logLik(data1960Logit)/logLik(data1960NullLogit)
+mcFadden = 1 - logLik(data1960Logit_4)/logLik(data1960NullLogit)
 mcFadden
 ```
 
 Or we can use other libraries. The `pscl` (Polictical Science Computational Lab) library has the function `pR2()` (pseudo-R$^2$) will do the trick.  
 
 ```{r McFadden}
-loadPkg(pscl) # use pR2( ) function to calculate McFadden statistics for model eval
-data1960Logitpr2 = pR2(data1960Logit)
+loadPkg('pscl') # use pR2( ) function to calculate McFadden statistics for model eval
+data1960Logitpr2 = pR2(data1960Logit_4)
 data1960Logitpr2
-unloadPkg(pscl) 
+unloadPkg('pscl') 
 ```
 
 With the McFadden value of the model, which is analgous to the coefficient of determination $R^2$, only about 8% of the variations in y is explained by the explanatory variables in the model. 
-
-A major weakness of the overall model is likely from the small dataset sample size of `r length(Admit$admit)`. We expect a much higher number of observations will increase the sensitivity of the model.
-
 
 I do the same thing in year 2000. The same method can be good for comparing between 1960s and 2000s.
 
@@ -1628,31 +1644,31 @@ data2000$target <- factor(data2000$target)
 ```
 
 
-```{r LogReg-Siwei}
+```{r LogReg-Siwei_7}
 data2000Logit_1 <- glm(target ~ tempo, data = data2000, family = "binomial")
 summary(data2000Logit_1)
 ```
 
 
-```{r LogReg-Siwei}
+```{r LogReg-Siwei_8}
 data2000Logit_2 <- glm(target ~ tempo+valence, data = data2000, family = "binomial")
 summary(data2000Logit_2)
 ```
 
 
-```{r LogReg-Siwei}
+```{r LogReg-Siwei_9}
 data2000Logit_3 <- glm(target ~ tempo+valence+danceability, data = data2000, family = "binomial")
 summary(data2000Logit_3)
 ```
 
 
-```{r LogReg-Siwei}
+```{r LogReg-Siwei_10}
 data2000Logit_4 <- glm(target ~ tempo+valence+danceability+energy, data = data2000, family = "binomial")
 summary(data2000Logit_4)
 ```
 
 
-```{r LogReg-Siwei}
+```{r LogReg-Siwei_11}
 data2000Logit_5 <- glm(target ~ tempo+valence+danceability+energy+liveness, data = data2000, family = "binomial")
 summary(data2000Logit_5)
 ```
@@ -1670,9 +1686,9 @@ x
 The Hosmer and Lemeshow Goodness of Fit test can be used to evaluate logistic regression fit.
 
 ```{r HosmerLemeshow}
-loadPkg(ResourceSelection) # function hoslem.test( ) for logit model evaluation
+loadPkg('ResourceSelection') # function hoslem.test( ) for logit model evaluation
 data2000Logit_5Hoslem = hoslem.test(data2000$target, fitted(data2000Logit_5)) # Hosmer and Lemeshow test, a chi-squared test
-unloadPkg(ResourceSelection)
+unloadPkg('ResourceSelection')
 ```
 
 The result is shown here:  
@@ -1687,8 +1703,7 @@ The p-value of `r data2000Logit_5Hoslem$p.value` is quite samll. This indicates 
 
 ROC and AUC measures the true positive rate (or sensitivity) against the false positive rate (or specificity). The area-under-curve is always between 0.5 and 1. Values higher than 0.8 is considered good model fit.  
 
-
-```{r roc_auc}
+```{r roc_auc_1}
 loadPkg('pROC') 
 prob=predict(data2000Logit_5, type = c("response"))
 data2000$prob=prob
@@ -1705,7 +1720,7 @@ We have here the area-under-curve of `r auc(h)`, which is almost 0.8. This test 
 
 McFadden is another evaluation tool we can use on logit regressions. This is part of what is called pseudo-R-squared values for evaluation tests. We can calculate the value directly from its definition if we so choose to.
 
-```{r McFadden_direct}
+```{r McFadden_direct_1}
 data2000NullLogit <- glm(target ~ 1, data = data2000, family = "binomial")
 mcFadden = 1 - logLik(data2000Logit_5)/logLik(data2000NullLogit)
 mcFadden
@@ -1713,8 +1728,7 @@ mcFadden
 
 Or we can use other libraries. The `pscl` (Polictical Science Computational Lab) library has the function `pR2()` (pseudo-R$^2$) will do the trick.  
 
-
-```{r McFadden}
+```{r McFadden_1}
 loadPkg('pscl') # use pR2( ) function to calculate McFadden statistics for model eval
 data2000Logitpr2 = pR2(data2000Logit_5)
 data2000Logitpr2
@@ -1722,18 +1736,6 @@ unloadPkg('pscl')
 ```
 
 A major weakness of the overall model is likely from the small dataset sample size. We expect a much higher number of observations will increase the sensitivity of the model.
-
-
-### Model evaluation
-#### Confusion matrix 
-
-This is just one of the many libraries you can find the confusion matrix. It is easy to use, but not very powerful, lacking ability to choose cutoff value, and it does not give you all the metrics like accuracy, precision, recall, sensitivity, f1 score etc. Nonetheless, it's handy.
-
-```{r confusionMatrix}
-loadPkg('regclass')
-confusion_matrix(admitLogit)
-unloadPkg('regclass')
-```
 
 There are a lot of factors that can affect the song's popularity in different years. From the logistic regression, we can draw conclusions from our dataset below.
 
@@ -1757,4 +1759,5 @@ The conclusion of this study, for the benefit of any aspiring song writer who wi
 
 ---
 [^1] Taken from [Spotify for Developers Web Services Page](https://developer.spotify.com/documentation/web-api/reference/tracks/get-audio-features/)
+
 [^2] From Molanphy, Chris (August 1, 2013). "How The Hot 100 Became America's Hit Barometer". Published by NPR.
